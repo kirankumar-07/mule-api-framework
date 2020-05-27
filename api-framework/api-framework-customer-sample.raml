@@ -1,0 +1,90 @@
+#%RAML 1.0 
+title: API Framework Customers Sample
+version: v1
+baseUri: https://driscolls.customers.cloudhub.io/api/v1
+protocols: [ HTTPS ] 
+
+mediaType: application/json
+
+documentation: 
+  - !include documentation/api-doc.raml
+     
+uses:
+  customtype: types/custom-types.raml
+  
+resourceTypes:
+  collection: !include libraries/patterns/collection.raml
+  post-only-item: !include libraries/patterns/post-only-item.raml
+  file-item: !include libraries/patterns/file-item.raml
+  read-only-collection: !include libraries/patterns/read-only-collection.raml 
+  read-only-item: !include libraries/patterns/read-only-item.raml
+  read-only-paged-collection: !include libraries/patterns/read-only-paged-collection.raml
+  read-update-delete-item: !include libraries/patterns/read-update-delete-item.raml
+  api-status: !include libraries/patterns/api-status.raml
+       
+traits:
+  paginated: !include libraries/traits/pagination.yaml
+  200-paged-collection: !include libraries/traits/responses/200-paged-collection.raml 
+  200-collection: !include libraries/traits/responses/200-collection.raml
+  200-file: !include libraries/traits/responses/200-file.raml
+  200-item: !include libraries/traits/responses/200-item.raml   
+  201-item: !include libraries/traits/responses/201-item.raml 
+  202-item: !include libraries/traits/responses/202-item.raml       
+  204-response: !include libraries/traits/responses/204-response.raml   
+  304-fault: !include libraries/traits/responses/304-fault.raml 
+  400-fault: !include libraries/traits/responses/400-fault.raml 
+  401-fault: !include libraries/traits/responses/401-fault.raml
+  403-fault: !include libraries/traits/responses/403-fault.raml
+  404-fault: !include libraries/traits/responses/404-fault.raml
+  405-fault: !include libraries/traits/responses/405-fault.raml
+  406-fault: !include libraries/traits/responses/406-fault.raml
+  407-fault: !include libraries/traits/responses/407-fault.raml
+  415-fault: !include libraries/traits/responses/415-fault.raml
+  422-fault: !include libraries/traits/responses/422-fault.raml
+  429-fault: !include libraries/traits/responses/429-fault.raml
+  500-fault: !include libraries/traits/responses/500-fault.raml
+  503-fault: !include libraries/traits/responses/503-fault.raml
+  504-fault: !include libraries/traits/responses/504-fault.raml
+                
+securitySchemes:  
+  clientIdAuth: !include libraries/security/client-id-auth.raml
+  oauth2.0Auth: !include libraries/security/oauth-2.0-auth.raml
+  basicAuth: !include libraries/security/basic-auth.raml
+
+securedBy: [basicAuth]
+
+/ping:
+  type: api-status
+
+/customers:
+  type: 
+    read-only-paged-collection:
+      collectionSummary: Get customers list
+      collectionDescription: Get a paginated list of customers
+      collectionType: customtype.customer
+      collectionExample: !include examples/customers-list.raml
+      pagedCollectionName: customers
+      maxItems: 100
+  
+  /customer:
+    type:
+      post-only-item:
+        itemSummary: Create a new customer
+        itemDescription: Creates new customer
+        inputType: customtype.customer-create
+        inputExample: !include examples/customer-create.raml
+        outputType: customtype.customer
+        outputExample: !include examples/customer-response.raml
+        
+    /{customer-id}:
+      type:
+        read-update-delete-item:
+          itemReadSummary: Read a customer
+          itemReadDescription: Read a customer using id
+          itemType: customtype.customer
+          itemExample: !include examples/customer-response.raml
+          itemUpdateDescription: Update customer
+          itemUpdateType: customtype.customer
+          postExample: !include examples/customer-response.raml
+          itemDeleteDescription: Delete a customer using id
+ 
